@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+
+data/
+artifacts/
+experiments/
+outputs/
+
+submission/ply/
+submission/renders/
+submission/predictions.npz
+
+*.zip
+.ipynb_checkpoints/

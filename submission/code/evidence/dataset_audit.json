@@ -1,0 +1,132 @@
+{
+  "train": {
+    "split": "train",
+    "scan_count": 533,
+    "X_shape": [
+      533,
+      10,
+      31141
+    ],
+    "X_dtype": "float16",
+    "nonfinite_count": 0,
+    "signal_min": -96.4375,
+    "signal_max": 35.875,
+    "signal_mean": 0.3095550507361667,
+    "subjects": {
+      "sub-0006": 61,
+      "sub-0001": 61,
+      "sub-0003": 85,
+      "sub-0007": 56,
+      "sub-0005": 53,
+      "sub-0008": 64,
+      "sub-0013": 5,
+      "sub-0002": 60,
+      "sub-0009": 6,
+      "sub-0004": 74,
+      "sub-0011": 4,
+      "sub-0012": 4
+    },
+    "unique_sample_ids": 533,
+    "unique_objects": 292,
+    "scans_per_object_min": 1,
+    "scans_per_object_max": 6,
+    "shape_points": [
+      292,
+      2048,
+      3
+    ],
+    "shape_masks": [
+      292,
+      32,
+      64,
+      64
+    ],
+    "class_counts_unique_objects": {
+      "airplane": 58,
+      "bench": 59,
+      "cabinet": 60,
+      "car": 58,
+      "sofa": 57
+    },
+    "point_coordinate_min": -0.5998404026031494,
+    "point_coordinate_max": 0.5235674381256104
+  },
+  "val": {
+    "split": "val",
+    "scan_count": 125,
+    "X_shape": [
+      125,
+      10,
+      31141
+    ],
+    "X_dtype": "float16",
+    "nonfinite_count": 0,
+    "signal_min": -30.359375,
+    "signal_max": 36.0,
+    "signal_mean": 0.5182938568335653,
+    "subjects": {
+      "sub-0003": 18,
+      "sub-0001": 18,
+      "sub-0009": 2,
+      "sub-0012": 1,
+      "sub-0002": 20,
+      "sub-0006": 8,
+      "sub-0008": 13,
+      "sub-0004": 14,
+      "sub-0007": 15,
+      "sub-0005": 15,
+      "sub-0011": 1
+    },
+    "unique_sample_ids": 125,
+    "unique_objects": 67,
+    "scans_per_object_min": 1,
+    "scans_per_object_max": 6,
+    "shape_points": [
+      67,
+      2048,
+      3
+    ],
+    "shape_masks": [
+      67,
+      32,
+      64,
+      64
+    ],
+    "class_counts_unique_objects": {
+      "airplane": 13,
+      "bench": 14,
+      "cabinet": 14,
+      "car": 13,
+      "sofa": 13
+    },
+    "point_coordinate_min": -0.5993017554283142,
+    "point_coordinate_max": 0.47823792695999146
+  },
+  "test": {
+    "split": "test",
+    "scan_count": 167,
+    "X_shape": [
+      167,
+      10,
+      31141
+    ],
+    "X_dtype": "float16",
+    "nonfinite_count": 0,
+    "signal_min": -32.5,
+    "signal_max": 36.65625,
+    "signal_mean": 0.6604623108882107,
+    "subjects": {
+      "sub-0007": 15,
+      "sub-0003": 15,
+      "sub-0008": 20,
+      "sub-0005": 24,
+      "sub-0006": 23,
+      "sub-0001": 23,
+      "sub-0002": 16,
+      "sub-0004": 29,
+      "sub-0009": 1,
+      "sub-0012": 1
+    },
+    "unique_sample_ids": 167
+  }
+}

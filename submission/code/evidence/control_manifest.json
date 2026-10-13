@@ -1,0 +1,24 @@
+{
+  "seed": 2026,
+  "correct_metrics": "outputs/controls/correct_metrics.json",
+  "shuffled": [
+    {
+      "repetition": 0,
+      "same_index_count": 1,
+      "prediction_file": "outputs/controls/shuffled_00.npz",
+      "metrics_file": "outputs/controls/shuffled_00_metrics.json"
+    },
+    {
+      "repetition": 1,
+      "same_index_count": 1,
+      "prediction_file": "outputs/controls/shuffled_01.npz",
+      "metrics_file": "outputs/controls/shuffled_01_metrics.json"
+    },
+    {
+      "repetition": 2,
+      "same_index_count": 0,
+      "prediction_file": "outputs/controls/shuffled_02.npz",
+      "metrics_file": "outputs/controls/shuffled_02_metrics.json"
+    }
+  ]
+}

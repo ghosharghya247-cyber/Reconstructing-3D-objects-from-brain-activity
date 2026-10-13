@@ -1,0 +1,16 @@
+{
+  "warning": "Diagnostic Euclidean Chamfer and F-score bootstrap, not the official evaluate.py bootstrap nor identification CI",
+  "diagnostic_chamfer": {
+    "mean": 0.16489702879327944,
+    "ci95_lower": 0.15358542592261246,
+    "ci95_upper": 0.17619510026902827,
+    "units": "object-group clustered scans"
+  },
+  "diagnostic_fscore": {
+    "mean": 0.37542932703534954,
+    "ci95_lower": 0.33946175374669485,
+    "ci95_upper": 0.4123594121369615,
+    "units": "object-group clustered scans"
+  },
+  "n_object_groups": 67
+}

@@ -1,0 +1,45 @@
+{
+  "method": "95% percentile bootstrap, resampling whole object groups and keeping their scans together",
+  "limitations": "Conditional on fixed validation opponent objects and cached generic/oracle anchors; not the organisers' hidden brain-use significance test, not refitted-model uncertainty",
+  "iterations": 2000,
+  "seed": 7,
+  "metrics": {
+    "chamfer": {
+      "mean": 0.17632567531712415,
+      "ci95_lower": 0.1612219236535022,
+      "ci95_upper": 0.19212783569102806,
+      "units": "object-group clustered scans"
+    },
+    "fscore": {
+      "mean": 0.3754817271083043,
+      "ci95_lower": 0.33241074624994205,
+      "ci95_upper": 0.4227226228376466,
+      "units": "object-group clustered scans"
+    },
+    "silhouette_iou": {
+      "mean": 0.4270908401285565,
+      "ci95_lower": 0.39049425249496345,
+      "ci95_upper": 0.4686619254332141,
+      "units": "object-group clustered scans"
+    },
+    "silhouette_ssim": {
+      "mean": 0.6686499158479273,
+      "ci95_lower": 0.6459252657258884,
+      "ci95_upper": 0.6915104093961364,
+      "units": "object-group clustered scans"
+    },
+    "identification": {
+      "mean": 60.30303030303029,
+      "ci95_lower": 54.78177694281525,
+      "ci95_upper": 65.90974399164052,
+      "units": "object-group clustered scans"
+    },
+    "composite": {
+      "mean": 0.051880870687652826,
+      "ci95_lower": -0.05289898939389048,
+      "ci95_upper": 0.1565575675278621,
+      "units": "object-group clustered scans"
+    }
+  },
+  "n_object_groups": 67
+}

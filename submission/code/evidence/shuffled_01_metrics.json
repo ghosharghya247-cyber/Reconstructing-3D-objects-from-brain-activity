@@ -1,0 +1,10 @@
+{
+  "chamfer": 0.21441336135907613,
+  "fscore": 0.3022118722601052,
+  "silhouette_iou": 0.34545452494195356,
+  "silhouette_ssim": 0.6326612145230174,
+  "identification": 46.66666666666667,
+  "composite": -0.2184864312848531,
+  "split": "val",
+  "n_scans": 125
+}

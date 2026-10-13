@@ -1,0 +1,173 @@
+{
+  "python": "3.12.13",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "cpu": "x86_64",
+  "logical_cpus": 16,
+  "threads": 4,
+  "reuse_config": true,
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2",
+    "Pillow": "12.3.0",
+    "joblib": "1.6.0",
+    "PyYAML": "6.0.3"
+  },
+  "stages": [
+    {
+      "stage": "tests",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "seconds": 0.9034941259999414,
+      "exit_code": 0
+    },
+    {
+      "stage": "audit",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.audit"
+      ],
+      "seconds": 4.152592999999911,
+      "exit_code": 0
+    },
+    {
+      "stage": "train",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.train"
+      ],
+      "seconds": 3.6400604729999486,
+      "exit_code": 0
+    },
+    {
+      "stage": "baselines",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.baselines",
+        "--evaluate"
+      ],
+      "seconds": 51.691583874,
+      "exit_code": 0
+    },
+    {
+      "stage": "validation_prediction",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.predict",
+        "--split",
+        "val",
+        "--output",
+        "outputs/val_predictions.npz"
+      ],
+      "seconds": 1.296376740000028,
+      "exit_code": 0
+    },
+    {
+      "stage": "validation_metrics",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "evaluate.py",
+        "outputs/val_predictions.npz",
+        "--save",
+        "submission/metrics/val_metrics.json"
+      ],
+      "seconds": 25.334194348000096,
+      "exit_code": 0
+    },
+    {
+      "stage": "uncertainty",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.uncertainty"
+      ],
+      "seconds": 25.55464877899999,
+      "exit_code": 0
+    },
+    {
+      "stage": "controls",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.controls",
+        "--repeats",
+        "3"
+      ],
+      "seconds": 123.42071535399998,
+      "exit_code": 0
+    },
+    {
+      "stage": "test_prediction",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.predict",
+        "--split",
+        "test",
+        "--output",
+        "submission/predictions.npz"
+      ],
+      "seconds": 1.460925829999951,
+      "exit_code": 0
+    },
+    {
+      "stage": "export",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.export"
+      ],
+      "seconds": 1.721994779000056,
+      "exit_code": 0
+    },
+    {
+      "stage": "report",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.report"
+      ],
+      "seconds": 2.3451480879999735,
+      "exit_code": 0
+    },
+    {
+      "stage": "package",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.package"
+      ],
+      "seconds": 0.0220025489999216,
+      "exit_code": 0
+    },
+    {
+      "stage": "integrity",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "-m",
+        "src.verify"
+      ],
+      "seconds": 0.4979284070000176,
+      "exit_code": 0
+    },
+    {
+      "stage": "official_check",
+      "command": [
+        "/home/arghya/fmri-3d-reconstruction/.venv/bin/python",
+        "check_submission.py",
+        "submission/"
+      ],
+      "seconds": 0.6005693759999531,
+      "exit_code": 0
+    }
+  ]
+}

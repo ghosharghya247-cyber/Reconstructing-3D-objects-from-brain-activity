@@ -1,0 +1,14 @@
+{
+  "config": {
+    "n_voxels": 4096,
+    "brain_pcs": 64,
+    "shape_pcs": 32,
+    "mask_side": 8,
+    "ridge_alpha": 1000.0,
+    "feature_mode": "mean_delta",
+    "seed": 42
+  },
+  "train_scans": 533,
+  "bank_training_objects": 292,
+  "note": "No validation or test object features used for training"
+}

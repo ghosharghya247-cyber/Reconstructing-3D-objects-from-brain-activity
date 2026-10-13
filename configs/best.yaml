@@ -1,0 +1,8 @@
+n_voxels: 31141
+brain_pcs: 0
+shape_pcs: 32
+mask_side: 8
+ridge_alpha: 1000.0
+feature_mode: delta
+retrieval_metric: cosine
+seed: 42

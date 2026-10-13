@@ -1,0 +1,7 @@
+n_voxels: 2048
+brain_pcs: 32
+shape_pcs: 16
+mask_side: 8
+ridge_alpha: 100.0
+feature_mode: mean
+seed: 42

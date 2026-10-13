@@ -1,0 +1,12 @@
+{
+  "method": "one-sided within-subject scan-pairing permutation test, fixed model and validation objects",
+  "limitations": "Separate evidence check; does not implement the organisers' unpublished hidden brain-use gate",
+  "iterations": 2000,
+  "observed_identification": 60.3030303030303,
+  "null_mean_identification": 49.95217575757576,
+  "null_ci95": [
+    45.21151515151515,
+    55.06696969696969
+  ],
+  "p_value": 0.0004997501249375312
+}

@@ -1,0 +1,379 @@
+# fMRI to 3D reconstruction: explanation, audit and running guide
+
+All paths below are relative to `/home/arghya/fmri-3d-reconstruction` unless stated otherwise. This guide follows all three pages of `fmri_3d_reconstruction_assignment.pdf` and the actual provided Python helpers. The data and helpers are already installed in this folder.
+
+## 1. What the assignment asks for
+
+A participant watched a rotating object while an MRI scanner recorded brain activity. Given one scan, predict the object's surface as 2,048 XYZ points. Every shape shares the same canonical coordinate frame: centred at the origin, z up, with the supplied orientation and scale.
+
+The ground truth is a **visual hull** derived from 32 silhouettes. It can fill concavities, so the task is to reproduce that supplied surface rather than recover an unavailable original mesh. The five categories are airplane, bench, cabinet, car and sofa.
+
+The PDF requires a model selected using train/validation with object-grouped cross-validation; validation metrics with uncertainty and a generic baseline comparison; evidence that output depends on brain activity; blind test predictions; 167 matching PLY point clouds; 668 calibrated renders; runnable code with runtime; and a report of at most three pages. Only the provided files may supply task data. No original object models may be downloaded. Any pretrained model use must be disclosed.
+
+## 2. Findings and repairs
+
+The starting implementation had the correct data, grouped folds, a training-shape retrieval model, validation/test predictions, PLY files, and PNG renders. It **did not yet meet the full assignment**: `submission/code/` was empty, the report was absent, runtime was unrecorded, and the existing model had 49.43% validation identification (below 50% chance). Its uncertainty tool covered only diagnostic Chamfer and F-score. The documentation still described an untested source pack with missing data, even though real data and results were present.
+
+The following repairs were made:
+
+- Added `delta` temporal features and optional bypass of brain PCA. Five-fold grouped selection chose all-voxel delta features, Ridge alpha 1,000, and cosine descriptor retrieval.
+- Changed model selection to maximize grouped-CV identification, with Chamfer as a tie-breaker. The brain-use requirement makes identification an essential selection criterion. All six candidates and 30 folds are recorded.
+- Added a fingerprinted, target-only shape-distance cache to accelerate fold scoring and compute the exact generic training medoid. The cache never enters model fitting.
+- Added object-group bootstrap intervals for all six supplied validation metrics, plus three globally shuffled pairing controls and a 2,000-repeat within-subject pairing permutation test.
+- Added `run_project.py`, runtime/environment logging, dependency pins, an automatic three-page report, complete source/checkpoint packaging, and ZIP creation.
+- Fixed checkpoint placement in packaged code and training metadata placement for a custom checkpoint path.
+- Strengthened input auditing and submission verification, including PLY coordinate equality, exact output counts, dimensions, finite metrics, and required code files.
+- Added tests covering direct delta inference, checkpoint reload, shuffled-row behavior, cache correctness/invalidation, grouped resampling and the pairing statistic.
+
+Original selected configuration, metrics and CV results were preserved in `outputs/audit/original/` before replacing the final model. Pre-existing work in this folder was retained and extended. The provided `starter.py`, `metrics.py`, `evaluate.py`, and `check_submission.py` were not edited.
+
+| Requirement | Current implementation / evidence |
+|---|---|
+| fMRI to canonical 2,048-point cloud | `src/model.py`; unchanged points retrieved from a training-only bank |
+| Selection grouped by object | `src/cross_validate.py`; five folds per candidate, no shared object groups |
+| Test-time inputs limited to allowed data | `src/predict.py` passes only test `X` into the frozen model; subject IDs are unused |
+| Provided data only; pretrained disclosure | No downloaded object data or pretrained models; stated in report |
+| Official validation metrics | `submission/metrics/val_metrics.json`, written by supplied `evaluate.py` |
+| Uncertainty | `outputs/validation/official_uncertainty.json`, all six metrics |
+| Generic comparison | `outputs/baselines/generic_metrics.json`; exact mean-Chamfer training medoid |
+| Brain dependence controls | `outputs/controls/`, including shuffled metrics and `pairing_test.json` |
+| 167 predictions and matching PLYs | `submission/predictions.npz`, `submission/ply/` |
+| Four 256 × 256 renders per scan | `submission/renders/`; views 00, 08, 16 and 24 |
+| Runnable source, checkpoint and runtime | `submission/code/`, `run_project.py`, `outputs/audit/runtime.json` |
+| Report, maximum three pages | `submission/report.pdf`, generated by `src/report.py` |
+| Submission ZIP | `submission.zip`; one top-level `submission/` folder |
+
+The file checker establishes completeness. The organisers' **hidden test score and brain-use significance decision remain unavailable locally**. The supplied `metrics.py`/`evaluate.py` do not expose that significance test. The validation interval and permutation test are supporting evidence, not a claim that the hidden gate has been run.
+
+The PDF mentions `LICENSE_fMRI-Shape.txt`, but that file was not present in this workspace. The report cites both required papers and states the PDF's Apache-2.0 licence attribution. Retain the original licence if it is available in your original assignment archive; no licence text was fabricated.
+
+## 3. Where the data lives and what it contains
+
+| File | Contents and use |
+|---|---|
+| `data/train.npz` | 533 scans, 292 objects; fits every learned model transform |
+| `data/val.npz` | 125 scans, 67 objects; held-out reporting, uncertainty and controls |
+| `data/test.npz` | 167 scans; exactly `X`, `subject`, `sample_id`, with no targets |
+| `data/cameras.npz` | 32 calibrated rotations/translations, focal length, optical centre, resolution, video-frame indices; evaluation and export |
+| `data/voxels.npz` | Position of each voxel on a 256 × 256 cortex map; provided but not used by this model |
+| `data/val_anchors.npz` | Cached generic/oracle validation reference metrics used by the supplied evaluator; not a model input |
+
+`X` has shape `(scans, 10, 31141)` and dtype `float16`. A scan is ten time points of the BOLD signal at 31,141 voxels. `subject` identifies the participant; `sample_id` identifies a scan/output filename. Train and val also contain `group`, `obj_points`, `obj_masks`, `obj_images`, `obj_class`, and `class_names`.
+
+`group[i]` is the row index of scan `i`'s object in that split's object arrays. The same object can have multiple scans. Object arrays are `(objects, 2048, 3)` points, `(objects, 32, 64, 64)` masks, and `(objects, 32, 64, 64, 3)` RGB images. Shape targets must be expanded as `obj_points[group]`, not treated as one object row per scan. Group integers are **local to each split**: train group 0 and val group 0 are unrelated. Use the supplied split separation; anonymous local IDs cannot independently prove the global object identities.
+
+The real-data audit found no non-finite brain values; 12 training subjects, 11 validation subjects and 10 test subjects; and 1–6 scans per object. All subjects in these actual val/test files also appear in train, though some have very few scans. The PDF permits unseen subjects; the chosen preprocessing is scan-local and does not require a known subject ID.
+
+`src/dataset.py` checks keys, unique IDs, dimensions and the direct integer group-index mapping. `src/audit.py` additionally enforces assignment counts, finite signals/points, stimulus image dimensions and calibrated camera dimensions. Details are saved in `outputs/audit/dataset_audit.json`.
+
+## 4. How one scan becomes a 3D shape
+
+The selected configuration is `configs/best.yaml`:
+
+```yaml
+n_voxels: 31141
+brain_pcs: 0
+shape_pcs: 32
+mask_side: 8
+ridge_alpha: 1000.0
+feature_mode: delta
+retrieval_metric: cosine
+seed: 42
+```
+
+1. **Extract temporal change — `src/preprocessing.py`.** Convert reductions to float32. For each voxel, subtract the mean of time points 0–4 from the mean of time points 5–9. This creates 31,141 features per scan. It removes time-constant voxel offsets and retains change during the stimulus. This is a simple temporal summary, not a fitted physiological BOLD response model.
+2. **Normalize brain features — `src/preprocessing.py`.** For each scan, subtract its spatial feature mean and divide by its spatial standard deviation, bounded below by `1e-6`. Select features by training variance; the selected configuration keeps all 31,141. Fit `StandardScaler` on training scans, then reuse its means/scales at inference. `brain_pcs: 0` skips PCA. The original candidates retained only 32 or 64 brain PCs, which could discard useful lower-variance signal.
+3. **Describe training objects — `src/descriptors.py`.** Binarize each object's 32 silhouettes and average non-overlapping 8 × 8 pixel blocks, reducing each 64 × 64 view to 8 × 8. Flatten the 32 views into 2,048 values. Fit a 32-component shape PCA on unique training objects only. Each object becomes a 32-value descriptor.
+4. **Learn brain-to-shape mapping — `src/model.py`.** Fit Ridge regression from normalized brain features to the target object's descriptor. Ridge limits coefficient size with alpha 1,000. Each object's scans share a total regression weight, so an object with six scans does not get six times the weight of an object with one scan.
+5. **Retrieve and copy points — `src/model.py`.** Predict a descriptor for a new scan, find the closest descriptor by cosine distance in the training-only bank, and copy that training object's 2,048 points. Cosine retrieval compares descriptor direction and is less sensitive to regression shrinking predictions toward the average than Euclidean retrieval. The method preserves the supplied frame without rotating or scaling points.
+6. **Save scan-aligned outputs — `src/predict.py` and `src/io_utils.py`.** Save `sample_id` and finite float32 points using `starter.save_predictions`. Output order follows the source split. The model's prediction path receives brain features alone; it does not receive validation labels, masks/images, sample IDs, or hidden test targets.
+
+This is **shape retrieval**, so a novel held-out object is represented by a training shape. It can capture category/coarse geometry but cannot construct new details or restore concavities. It uses masks and points for training; provided RGB images and cortical-map coordinates are unused.
+
+## 5. How selection avoids object leakage
+
+`src/cross_validate.py` applies `GroupKFold(n_splits=5)` to train `group`. Every scan of an object stays in one fold. Within each fold, the brain feature selector/scaler/PCA, shape PCA, Ridge regression and retrieval bank are fitted using the training portion only. Held-out objects cannot enter the bank.
+
+Six configurations in `configs/candidates.yaml` are compared. The original three PCA configurations are retained, followed by three direct delta variants. Early three-fold training category experiments motivated testing delta features; their script is `experiments/explore_features.py`. The five-fold retrieval results, rather than validation or test labels, determine the final choice. Candidate 6 achieved **62.9442%** grouped-CV identification; its mean fold Chamfer was **0.176409**. Full fold counts and scores are in `outputs/validation/cv_results.json`.
+
+For retrieval-only scoring, `outputs/validation/train_shape_metrics.npz` caches pairwise training-object Chamfer/F-score values from the supplied metric. The cache is fingerprinted against the point array and rebuilt when it changes. It is used to score predictions against held-out training targets and to find the generic medoid. It is never passed into fitting or inference. Identification compares the predicted shape with the unique held-out objects in that fold, excluding its own object. These CV scores are not a substitute for the official held-out validation composite.
+
+## 6. What the metrics mean and what the model achieved
+
+`evaluate.py` aligns prediction rows by validation sample ID, expands targets by group, loads calibrated cameras and calls `metrics.py`.
+
+- **Chamfer:** average nearest-point distance prediction-to-truth plus truth-to-prediction; lower is better. Distances are Euclidean, not squared.
+- **F-score at 0.05:** harmonic mean of point precision/recall, using a strict distance `< 0.05`.
+- **Silhouette IoU:** project/splat points through all 32 cameras at 64 × 64 and compare silhouettes by intersection over union.
+- **Silhouette SSIM:** structural similarity of those projected silhouettes, using the supplied Gaussian-window implementation.
+- **Identification:** for each scan, percentage of other unique validation objects farther from the prediction than its own object, then mean across scans. Chance is 50%; units in JSON are percent, not a 0–1 fraction.
+- **Composite:** `0.5 * normalized_identification + 0.5 * mean(normalized_geometry)`. Geometry is normalized between the cached generic and oracle values; identification is normalized from 50% to the oracle identification. Scores are not clipped. Because identification uses 50% rather than the empirical medoid identification, the actual generic baseline composite can be slightly below zero.
+
+| Method | Chamfer ↓ | F@0.05 ↑ | IoU ↑ | SSIM ↑ | Identification ↑ | Composite ↑ |
+|---|---:|---:|---:|---:|---:|---:|
+| Generic training medoid | 0.156233 | 0.394677 | 0.438402 | 0.691906 | 48.7636% | -0.012760 |
+| fMRI category retrieval | 0.183711 | 0.352747 | 0.400502 | 0.663209 | 52.8485% | -0.055247 |
+| Original selected PCA model | 0.164897 | 0.375429 | 0.415682 | 0.682009 | 49.4303% | -0.039561 |
+| Final delta/cosine model | 0.176326 | 0.375482 | 0.427091 | 0.668650 | **60.3030%** | **+0.051881** |
+
+The final model improves object identification and composite compared with the original model and the constant baseline. It does **not** beat the generic medoid on all geometry metrics. The positive composite estimate has substantial uncertainty, so it is not evidence of a reliably large ranking improvement.
+
+`src/uncertainty.py` uses the supplied metric implementation and 2,000 object-group bootstrap replicates (seed 7). A selected group contributes all its scans, including when that group is drawn repeatedly. The estimates retain scan-weighted scoring while accounting for repeated scans of an object.
+
+| Final metric | Conditional 95% bootstrap interval |
+|---|---:|
+| Chamfer | [0.161222, 0.192128] |
+| F-score | [0.332411, 0.422723] |
+| Silhouette IoU | [0.390494, 0.468662] |
+| Silhouette SSIM | [0.645925, 0.691510] |
+| Identification | **[54.7818%, 65.9097%]** |
+| Composite | [-0.052899, 0.156558] |
+
+These intervals condition on the fixed original validation opponent objects, generic/oracle anchors, and fitted model. They do not refit the model or bootstrap a new opponent set. The composite is affine in the metrics, so averaging the per-scan composites with fixed anchors gives the supplied composite of the scan means. Results and per-scan rows are stored in `outputs/validation/official_uncertainty.json` and `per_scan_metrics.json`.
+
+`src/controls.py` globally permutes correctly predicted scan rows three times (seed 2026), retaining destination sample IDs, and runs the supplied evaluator on each control. Because inference operates independently per scan, shuffling its input rows gives exactly these shuffled output rows; this equivalence is tested. Global shuffles can mix subjects. A separate 2,000-repeat permutation statistic shuffles within subjects, compares identification under correct versus randomized pairing, and writes `outputs/controls/pairing_test.json`. This evidence test is separate from the organisers' unpublished significance gate.
+
+| Pairing | Identification | Composite |
+|---|---:|---:|
+| Correct fMRI | 60.3030% | +0.051881 |
+| Global shuffle 0 | 49.6121% | -0.168270 |
+| Global shuffle 1 | 46.6667% | -0.218486 |
+| Global shuffle 2 | 51.0788% | -0.128824 |
+
+The within-subject permutation null mean is 49.9522%, with a 95% null range of [45.2115%, 55.0670%]. The observed 60.3030% gives one-sided p = **0.00049975**, using `(1 + number of null scores >= observed) / (2000 + 1)`. The statistic conditions on the fixed model/predictions and assumes within-subject pairing exchangeability; its purpose is to test dependence on correct pairing, rather than replace clustered metric uncertainty.
+
+## 7. Folder map: what happens where
+
+```text
+fmri-3d-reconstruction/
+  fmri_3d_reconstruction_assignment.pdf   original assignment
+  steps.md                              this guide
+  README.md                             short entry point
+  requirements.txt                      compatible dependency ranges
+  requirements.lock.txt                 exact installed versions
+  run_project.py                        complete workflow and timing/logging
+  Makefile                              shortcuts for individual stages
+  data/                                 supplied NPZs and evaluator anchor cache
+  configs/                              six candidates and selected config
+  src/
+    dataset.py, audit.py                 input loading and contract checks
+    preprocessing.py                    brain temporal/normalization features
+    descriptors.py                      silhouette reduction and shape PCA
+    model.py                            Ridge + training-shape retrieval
+    cross_validate.py                   grouped selection and scoring cache
+    train.py, predict.py                 checkpoint fitting and inference
+    baselines.py                        constant medoid and fMRI category baseline
+    uncertainty.py, controls.py          intervals and brain-pairing checks
+    export.py                           provided PLY/camera-render helper
+    report.py                           automatic measured three-page report
+    package.py, verify.py                source collection and integrity checks
+    io_utils.py, diagnostics.py          I/O and ancillary geometry diagnostics
+  starter.py                            supplied NPZ, camera, PLY/render helpers
+  metrics.py, evaluate.py                supplied grading functions and val CLI
+  check_submission.py                   supplied completeness checker
+  tests/test_pipeline.py                eight model/scoring correctness tests
+  experiments/explore_features.py        exploratory training category experiment
+  artifacts/best.joblib                  frozen model and training-shape bank
+  artifacts/train_info.json              fitted configuration and counts
+  outputs/audit/                        data audit, timing, preserved old results
+  outputs/validation/                   CV/cache/uncertainty/per-scan evidence
+  outputs/baselines/                     baseline NPZs and official metric JSONs
+  outputs/controls/                      pairing controls and metric JSONs
+  outputs/val_predictions.npz            selected model's validation predictions
+  outputs/logs/                         separate logs for each pipeline stage
+  submission/
+    predictions.npz                     test sample_id + (167,2048,3) float32 points
+    ply/                                167 ASCII PLYs with rounded matching points
+    renders/                            668 grayscale 256 x 256 PNGs
+    metrics/val_metrics.json            official metrics for the selected model
+    report.pdf                          three-page measured report
+    code/                               runnable source, checkpoint and JSON evidence
+  submission.zip                        final archive, no dataset or virtualenv
+```
+
+`starter.write_ply` writes five decimal places, so PLY coordinates equal NPZ points within serialization rounding (`1e-5` tolerance in our verifier). Test render indices 00/08/16/24 select stimulus cameras; these are calibrated camera views, not arbitrary matplotlib perspectives. The supplied render helper scales the 64 × 64 intrinsics to 256 × 256 and draws depth-shaded point discs.
+
+## 8. Environment setup
+
+For this existing folder, the `.venv` is already populated:
+
+```bash
+cd /home/arghya/fmri-3d-reconstruction
+source .venv/bin/activate
+python --version
+python -m pytest -q
+```
+
+For a fresh checkout with the provided data extracted into `data/`, use Python 3.12:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.lock.txt
+python -m pytest -q
+```
+
+The lock captures the environment used for this run, including NumPy 2.5.4, SciPy 1.18.1, scikit-learn 1.9.1 and matplotlib 3.11.2. `requirements.txt` gives broader compatible ranges. Install dependencies once; dataset and model fitting remain local. No GPU is required. Allow roughly 2–4 GB RAM; compressed NPZ loading expands large fMRI/image arrays in memory. This RAM range is an estimate, not a measured peak.
+
+`run_project.py` sets four BLAS/OpenMP threads by default. Standalone commands should use:
+
+```bash
+export OPENBLAS_NUM_THREADS=4
+export OMP_NUM_THREADS=4
+export MKL_NUM_THREADS=4
+```
+
+### Measured runtime and expected runtime
+
+On this machine (AMD Ryzen 7 7700, 16 logical CPUs, Python 3.12.13, four BLAS threads), the completed `--reuse-config` pipeline took **242.6 seconds, about 4.0 minutes**, excluding ZIP compression from the stage total. Shape scoring and validation anchor caches were present. The measured stage times were:
+
+| Stage | Seconds |
+|---|---:|
+| Tests + data audit | 5.1 |
+| Model fitting | 3.6 |
+| Two officially evaluated baselines | 51.7 |
+| Validation prediction + official score | 26.6 |
+| Official metric uncertainty | 25.6 |
+| Three shuffled controls + pairing test | 123.4 |
+| Test prediction + PLY/render export | 3.2 |
+| Report + packaging + integrity/checker | 3.5 |
+
+Plan roughly **4–6 minutes** for rebuilding with the selected configuration on similar hardware and existing caches. Full grouped selection adds model fits; first-run training-shape and evaluator reference calculations can add several minutes. Budget approximately **5–15 minutes** for a full cold run on similar hardware; this cold-run range is an estimate, not a measured total. Slower CPUs or dependency changes can take longer. `outputs/audit/runtime.json` contains exact measured per-stage times and package versions; its copy in `submission/code/evidence/runtime.json` preserves the run for a reviewer. The separate eight-test/integrity check typically takes a few seconds.
+
+## 9. Fast ways to run and check it yourself
+
+**Check the already-created submission without retraining:**
+
+```bash
+python run_project.py --check-only
+```
+
+This runs the unit tests, data audit, independent integrity verifier and official checker. It checks existing files rather than recomputing performance. Expected last checker message starts with `Submission OK`. Check logs are in `outputs/logs/`; timing is `outputs/audit/check_runtime.json`.
+
+**Rebuild using the selected config:**
+
+```bash
+python run_project.py --reuse-config
+```
+
+This skips CV, then trains, computes baselines/validation/uncertainty/controls, predicts the test set, exports PLYs/renders, generates the report, packages source/checkpoint, verifies everything and creates `submission.zip`. It replaces generated results in the standard paths. Timings are `outputs/audit/runtime.json`; each command's full output is in `outputs/logs/<stage>.log`.
+
+**Run everything, including model selection:**
+
+```bash
+python run_project.py
+```
+
+This adds all six candidates × five grouped folds before the same remaining stages. The first run builds a roughly 292 × 292 shape scoring cache; later runs reuse it if the training point fingerprint matches. Cached oracle/generic validation anchors are also reused by the supplied evaluator. To force fresh evaluator reference anchors, remove `data/val_anchors.npz` and rerun `evaluate.py`; computing the medoid/oracle can add several minutes.
+
+The workflow stops at the first failed stage and prints its log path. It runs from the directory containing `run_project.py`, even when launched from elsewhere. `make all PYTHON=.venv/bin/python` and `make check PYTHON=.venv/bin/python` provide equivalent shortcuts.
+
+## 10. Individual commands, in execution order
+
+Run these from the root with the environment activated. They show exactly where each action starts and what it writes:
+
+```bash
+# 1. Check implementation contracts, then inspect the provided data.
+python -m pytest -q
+python -m src.audit --data-dir data
+cat outputs/audit/dataset_audit.json
+
+# 2. Select only on grouped training folds. Skip to step 3 to reuse best.yaml.
+python -m src.cross_validate --data-dir data \
+  --candidates configs/candidates.yaml --folds 5 \
+  --output outputs/validation/cv_results.json --best configs/best.yaml
+
+# 3. Fit the frozen model using training data only.
+python -m src.train --data-dir data --config configs/best.yaml \
+  --save artifacts/best.joblib
+
+# 4. Compare constant geometry and a coarse fMRI category baseline.
+python -m src.baselines --data-dir data --evaluate
+
+# 5. Make val predictions, then run the original grading code.
+python -m src.predict --checkpoint artifacts/best.joblib --split val \
+  --output outputs/val_predictions.npz
+python evaluate.py outputs/val_predictions.npz \
+  --save submission/metrics/val_metrics.json
+
+# 6. Quantify uncertainty and correct-vs-shuffled brain pairing.
+python -m src.uncertainty --predictions outputs/val_predictions.npz --iterations 2000
+python -m src.controls --checkpoint artifacts/best.joblib --repeats 3 --permutations 2000
+
+# 7. Infer blind test shapes and export the mandatory files.
+python -m src.predict --checkpoint artifacts/best.joblib --split test \
+  --output submission/predictions.npz
+python -m src.export --predictions submission/predictions.npz --out submission
+
+# 8. Create the measured report and collect runnable code/checkpoint.
+# The report expects outputs/audit/runtime.json from run_project.py.
+python -m src.report --out submission/report.pdf
+python -m src.package --root submission --checkpoint artifacts/best.joblib
+
+# 9. Independent checks, then the assignment's original checker.
+python -m src.verify submission --data-dir data
+python check_submission.py submission/
+```
+
+For automatic runtime records and ZIP creation, use `run_project.py`. The standalone report command requires the actual runtime JSON from a completed or ongoing orchestrated run; it does not invent runtime measurements.
+
+The supplied `starter.py` and evaluator resolve `data/` beside their own source files. Keep the dataset at the documented root location when rendering or evaluating. Some training scripts accept `--data-dir`, but moving only their data path does not relocate the official helpers' data source. Use the standard layout for the complete pipeline.
+
+## 11. Running the submitted code independently
+
+The ZIP includes source and the trained checkpoint, but excludes the provided dataset to avoid duplicating hundreds of megabytes. After extracting `submission.zip`, run from its `submission/code/` directory:
+
+```bash
+cd /path/to/extracted/submission/code
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.lock.txt
+mkdir -p data
+# Copy the five original NPZ files into this data/ folder:
+# train.npz, val.npz, test.npz, cameras.npz, voxels.npz
+# Optional: also copy val_anchors.npz from the supplied/local data for faster evaluation.
+python -m pytest -q
+
+# Check inference with the packaged frozen model:
+python -m src.predict --split test --checkpoint artifacts/best.joblib \
+  --output /tmp/rechecked_test_predictions.npz
+
+# Or rebuild a complete submission under this code folder:
+python run_project.py --reuse-config
+```
+
+The packaged checkpoint is `code/artifacts/best.joblib`, matching the command defaults. Training can also recreate it from the included config and supplied train NPZ. The package includes JSON experiment evidence in `code/evidence/`; a fresh rebuild creates new operational results in `code/outputs/`.
+
+`run_project.py --check-only` checks a `submission/` folder under its own root. In the packaged source, first run the rebuild to create that folder, or verify the extracted outer submission from the original project root. An empty local `code/submission/` is not the extracted submission.
+
+## 12. Manual inspection and troubleshooting
+
+```bash
+# Confirm prediction IDs, dtype, finite coordinates and dimensions.
+python - <<'PY'
+import numpy as np
+with np.load('submission/predictions.npz') as z:
+    print(z.files)
+    print(z['sample_id'].shape, z['points'].shape, z['points'].dtype)
+    print('finite:', np.isfinite(z['points']).all())
+PY
+
+# Optional system utility: confirm report length.
+pdfinfo submission/report.pdf
+
+# List the final archive without extracting it.
+python -m zipfile -l submission.zip
+```
+
+Open `submission/report.pdf` for the approach, official results, controls and best/worst validation examples. Open PNGs in `submission/renders/` to inspect test shapes. A PLY point cloud viewer can inspect `submission/ply/`; the supplied `starter.read_ply` also loads its XYZ coordinates.
+
+- **Missing data/key or wrong shape:** check extraction and filenames. Do not fabricate replacements. The audit deliberately fails on a dataset that differs from the assignment.
+- **`No module named ...`:** activate `.venv` and install the lock with that same `python`. Avoid mixing system Python and virtualenv Python.
+- **Slow linear algebra:** use the four-thread settings above. First-run cache/reference construction is slower than later runs.
+- **Failed model load:** the packaged checkpoint expects compatible package versions and importable `src/`; run from the documented source directory. Use the lock or retrain.
+- **Changed config but unchanged predictions:** retrain the checkpoint before predicting; config YAML alone does not alter an already-trained artifact.
+- **Checker reports missing report/code:** run report generation then packaging after actual metrics/controls exist. The official checker only checks that `code/` exists; our verifier additionally checks key runnable files.
+- **PLY mismatch or incorrect render dimensions:** regenerate both from the final `submission/predictions.npz` with `src.export`; do not mix files from older checkpoints.
+- **Scores change:** confirm the candidate configuration, seed, dependency versions, input NPZs and prediction IDs. Small numerical changes near nearest-neighbor boundaries may change retrieved objects.
+
+The final validation evidence supports scan/object dependence, but the model remains a modest retrieval baseline. The official checker does not test model quality, and the positive composite interval includes zero. Only the organisers can evaluate hidden test targets.

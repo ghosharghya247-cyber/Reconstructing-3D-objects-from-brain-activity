@@ -1,0 +1,414 @@
+{
+  "model_selection_metric": "grouped_cv_identification_higher_is_better_chamfer_tiebreak",
+  "results": [
+    {
+      "candidate": 1,
+      "config": {
+        "n_voxels": 2048,
+        "brain_pcs": 32,
+        "shape_pcs": 16,
+        "mask_side": 8,
+        "ridge_alpha": 10.0,
+        "feature_mode": "mean",
+        "retrieval_metric": "euclidean",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.1580909680453746,
+          "diagnostic_fscore": 0.41110041959960897,
+          "identification": 55.05820626332186
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.1681007333598557,
+          "diagnostic_fscore": 0.36444877987629515,
+          "identification": 48.3886561392201
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.18524721822740187,
+          "diagnostic_fscore": 0.3307413761492349,
+          "identification": 48.38865613922012
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.1601304835029047,
+          "diagnostic_fscore": 0.38060931482736454,
+          "identification": 51.8867924528302
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.15755561761512998,
+          "diagnostic_fscore": 0.39806033324495865,
+          "identification": 51.489572989076464
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.16582500415013338,
+      "mean_diagnostic_fscore": 0.37699204473949244,
+      "mean_identification": 51.039953509963695
+    },
+    {
+      "candidate": 2,
+      "config": {
+        "n_voxels": 4096,
+        "brain_pcs": 64,
+        "shape_pcs": 32,
+        "mask_side": 8,
+        "ridge_alpha": 100.0,
+        "feature_mode": "mean",
+        "retrieval_metric": "euclidean",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.167823819993375,
+          "diagnostic_fscore": 0.3878702496065646,
+          "identification": 52.71355959993443
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.16998381274396682,
+          "diagnostic_fscore": 0.3712871030633198,
+          "identification": 51.24073477280052
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.17708135123806376,
+          "diagnostic_fscore": 0.3808834550689956,
+          "identification": 50.757331614566546
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.16475701651683172,
+          "diagnostic_fscore": 0.3823681364106719,
+          "identification": 52.813637868255555
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.16156979599027954,
+          "diagnostic_fscore": 0.38526839827330955,
+          "identification": 54.28666004634227
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.16824315929650338,
+      "mean_diagnostic_fscore": 0.3815354684845723,
+      "mean_identification": 52.357927879153145
+    },
+    {
+      "candidate": 3,
+      "config": {
+        "n_voxels": 4096,
+        "brain_pcs": 64,
+        "shape_pcs": 32,
+        "mask_side": 8,
+        "ridge_alpha": 1000.0,
+        "feature_mode": "mean_delta",
+        "retrieval_metric": "euclidean",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.1580296862268481,
+          "diagnostic_fscore": 0.3979948584223517,
+          "identification": 54.992621741269076
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.16851237361280336,
+          "diagnostic_fscore": 0.3767434580670268,
+          "identification": 51.401869158878505
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.1741222891549243,
+          "diagnostic_fscore": 0.3833818530856948,
+          "identification": 51.3535288430551
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.15909742715689265,
+          "diagnostic_fscore": 0.40343799858388896,
+          "identification": 54.20390599139358
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.15911880755551347,
+          "diagnostic_fscore": 0.40060938353007464,
+          "identification": 53.83978814961933
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.1637761167413964,
+      "mean_diagnostic_fscore": 0.3924335103378074,
+      "mean_identification": 53.155102610638
+    },
+    {
+      "candidate": 4,
+      "config": {
+        "n_voxels": 31141,
+        "brain_pcs": 0,
+        "shape_pcs": 32,
+        "mask_side": 8,
+        "ridge_alpha": 100000.0,
+        "feature_mode": "delta",
+        "retrieval_metric": "euclidean",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.15192564944441883,
+          "diagnostic_fscore": 0.4219419693673307,
+          "identification": 55.68125922282342
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.1598679480383393,
+          "diagnostic_fscore": 0.3828378348622618,
+          "identification": 51.901385755720284
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.17413309383083792,
+          "diagnostic_fscore": 0.36143096945934927,
+          "identification": 51.25684821140832
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.1525221256916979,
+          "diagnostic_fscore": 0.40940820512747766,
+          "identification": 54.48526977821914
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.14388232335182674,
+          "diagnostic_fscore": 0.4227431615732992,
+          "identification": 55.37901357166501
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.15646622807142413,
+      "mean_diagnostic_fscore": 0.39967242807794373,
+      "mean_identification": 53.736284815033
+    },
+    {
+      "candidate": 5,
+      "config": {
+        "n_voxels": 31141,
+        "brain_pcs": 0,
+        "shape_pcs": 32,
+        "mask_side": 8,
+        "ridge_alpha": 100000.0,
+        "feature_mode": "delta",
+        "retrieval_metric": "cosine",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.17441101207244253,
+          "diagnostic_fscore": 0.406028516558809,
+          "identification": 62.20691916707658
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.17926989102856697,
+          "diagnostic_fscore": 0.37479819783789897,
+          "identification": 60.32871414759909
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.17796429744247197,
+          "diagnostic_fscore": 0.3867427661712201,
+          "identification": 61.95617144698679
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.17218774757487565,
+          "diagnostic_fscore": 0.4053574887987011,
+          "identification": 63.96888447533929
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.18378768892342923,
+          "diagnostic_fscore": 0.36958756083628813,
+          "identification": 61.75107580271433
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.17752412740835727,
+      "mean_diagnostic_fscore": 0.38850290604058346,
+      "mean_identification": 62.039284988689616
+    },
+    {
+      "candidate": 6,
+      "config": {
+        "n_voxels": 31141,
+        "brain_pcs": 0,
+        "shape_pcs": 32,
+        "mask_side": 8,
+        "ridge_alpha": 1000.0,
+        "feature_mode": "delta",
+        "retrieval_metric": "cosine",
+        "seed": 42
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.16951197559072165,
+          "diagnostic_fscore": 0.4310264938440856,
+          "identification": 65.97802918511232
+        },
+        {
+          "fold": 2,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.171797502081816,
+          "diagnostic_fscore": 0.3963764093430869,
+          "identification": 60.84434418304867
+        },
+        {
+          "fold": 3,
+          "n_train_scans": 426,
+          "n_validation_scans": 107,
+          "n_train_groups": 233,
+          "n_validation_groups": 59,
+          "diagnostic_chamfer": 0.18051361504002927,
+          "diagnostic_fscore": 0.37107637401067567,
+          "identification": 62.43957460522076
+        },
+        {
+          "fold": 4,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.17388284508044424,
+          "diagnostic_fscore": 0.41174706931233374,
+          "identification": 64.29990069513407
+        },
+        {
+          "fold": 5,
+          "n_train_scans": 427,
+          "n_validation_scans": 106,
+          "n_train_groups": 234,
+          "n_validation_groups": 58,
+          "diagnostic_chamfer": 0.18634136337508808,
+          "diagnostic_fscore": 0.3863516145692323,
+          "identification": 61.155246607083754
+        }
+      ],
+      "mean_diagnostic_chamfer": 0.17640946023361986,
+      "mean_diagnostic_fscore": 0.3993155922158828,
+      "mean_identification": 62.944228981589006
+    }
+  ],
+  "best_candidate": 6
+}
